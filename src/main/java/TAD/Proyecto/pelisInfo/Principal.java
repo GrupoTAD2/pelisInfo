@@ -66,8 +66,8 @@ public class Principal extends UI {
         Table table = new Table();
 
         table.addContainerProperty("Titulo", String.class, null);
-        table.addContainerProperty("director", String.class, null);
-        table.addContainerProperty("informacion", String.class, null);
+        table.addContainerProperty("Director", String.class, null);
+        table.addContainerProperty("Informacion", String.class, null);
 
         for (int i = 0; i < listaPeliculas.size(); i++) {
             Pelicula p = listaPeliculas.get(i);
