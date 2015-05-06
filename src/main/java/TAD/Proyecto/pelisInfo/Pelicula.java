@@ -117,7 +117,7 @@ public class Pelicula {
 
     @Override
     public String toString() {
-        return "Pelicula{" + "idPelicula=" + idPelicula + ", idDirector=" + idDirector + ", titulo=" + titulo + ", anio=" + anio + ", pais=" + pais + ", genero=" + genero + ", sinopsis=" + sinopsis + ", duracion=" + duracion + ", imagen=" + imagen + ", trailer=" + trailer + '}';
+        return titulo;
     }
 
 }

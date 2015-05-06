@@ -11,7 +11,9 @@ import com.vaadin.server.ExternalResource;
 import com.vaadin.server.Sizeable;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.server.VaadinServlet;
+import com.vaadin.ui.AbstractSelect.ItemCaptionMode;
 import com.vaadin.ui.Button;
+import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.Flash;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.HorizontalSplitPanel;
@@ -115,7 +117,7 @@ public class Admin extends UI {
         for (int i = 0; i < listaPeliculas.size(); i++) {
             Pelicula p = listaPeliculas.get(i);
             tree.addItem(p);
-            tree.setParent(p, pel);
+            tree.setParent(p.getTitulo(), pel);
             tree.setChildrenAllowed(p, false);
         }
         String act = "Actores";
@@ -140,6 +142,8 @@ public class Admin extends UI {
             public void valueChange(Property.ValueChangeEvent event) {
                 v2.removeAllComponents();
                 Pelicula p = (Pelicula) event.getProperty().getValue();
+                TextField t0 = new TextField("Durecion", Integer.toString(p.getDuracion()));
+                v2.addComponent(t0);
                 TextField t1 = new TextField("Titulo", p.getTitulo());
                 t1.setColumns(25);
                 v2.addComponent(t1);
@@ -156,6 +160,8 @@ public class Admin extends UI {
                 TextField t6 = new TextField("Trailer", p.getTrailer());
                 t6.setColumns(30);
                 v2.addComponent(t6);
+                ComboBox t7 = new ComboBox("Director", listaDirectores);
+                v2.addComponent(t7);
                 Button button = new Button("Editar");
                 button.addClickListener(new Button.ClickListener() {
                     @Override

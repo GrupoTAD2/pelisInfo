@@ -5,11 +5,13 @@ import javax.servlet.annotation.WebServlet;
 import com.vaadin.annotations.Theme;
 import com.vaadin.annotations.Title;
 import com.vaadin.annotations.VaadinServletConfiguration;
+import com.vaadin.data.util.BeanItemContainer;
 import com.vaadin.server.ExternalResource;
 import com.vaadin.server.Sizeable;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.server.VaadinServlet;
 import com.vaadin.ui.Button;
+import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.Flash;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.HorizontalSplitPanel;
@@ -43,7 +45,7 @@ public class Principal extends UI {
         HorizontalLayout h1 = new HorizontalLayout();
         h1.setMargin(true);
 
-        HorizontalLayout h2 = new HorizontalLayout();
+        final HorizontalLayout h2 = new HorizontalLayout();
         h2.setMargin(true);
 
         VerticalLayout v1 = new VerticalLayout();
@@ -65,21 +67,10 @@ public class Principal extends UI {
         List<Director> listaDirectores = new ArrayList();
         List<Actor> listaActores = new ArrayList();
 
-        String login = "root";
-        String password = "";
-        String url = "jdbc:mysql://localhost:3306/pelisInfo";
-
-        Connection conn = null;
+        Connection conn = DAO.abrirConexion();
         try {
-            Class.forName("com.mysql.jdbc.Driver").newInstance();
-            conn = DriverManager.getConnection(url, login, password);
-            if (conn != null) {
-                Statement stmt1 = conn.createStatement();
-                ResultSet res1 = stmt1.executeQuery("SELECT * FROM pelicula");
-                while (res1.next()) {
-                    Pelicula p = new Pelicula(Integer.parseInt(res1.getString("idPelicula")), Integer.parseInt(res1.getString("idDirector")), res1.getString("titulo"), Integer.parseInt(res1.getString("anio")), res1.getString("pais"), res1.getString("genero"), res1.getString("sinopsis"), Integer.parseInt(res1.getString("duracion")), res1.getString("imagen"), res1.getString("trailer"));
-                    listaPeliculas.add(p);
-                }
+            if (conn != null) {                
+                listaPeliculas = DAO.consultarPeliculas(conn);
                 Statement stmt2 = conn.createStatement();
                 ResultSet res2 = stmt2.executeQuery("SELECT * FROM director");
                 while (res2.next()) {
@@ -92,22 +83,20 @@ public class Principal extends UI {
                     Actor a = new Actor(Integer.parseInt(res3.getString("idActor")), res3.getString("nombre"), res3.getString("apellidos"));
                     listaActores.add(a);
                 }
-                res1.close();
-                stmt1.close();
+                
                 res2.close();
                 stmt2.close();
                 res3.close();
-                stmt3.close();
-                conn.close();
+                stmt3.close();                
             }
         } catch (SQLException ex) {
             System.out.println(ex);
-        } catch (ClassNotFoundException ex) {
-            System.out.println(ex);
-        } catch (InstantiationException ex) {
-            Logger.getLogger(Principal.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (IllegalAccessException ex) {
-            Logger.getLogger(Principal.class.getName()).log(Level.SEVERE, null, ex);
+        }finally{
+            try {
+                DAO.cerrarConexion(conn);
+            } catch (SQLException ex) {
+                Logger.getLogger(Principal.class.getName()).log(Level.SEVERE, null, ex);
+            }
         }
 
         Table table = new Table();
@@ -122,12 +111,12 @@ public class Principal extends UI {
         for (int i = 0; i < listaPeliculas.size(); i++) {
             Pelicula p = listaPeliculas.get(i);
             /*Label sample = new Label(
-                    "This is an example of a"
-                    + "\n<br>"
-                    + "\n<img src='"+p.getImagen()+"'>"
-                    + "Label</a> \ncomponent.");
-            sample.setContentMode(com.vaadin.shared.ui.label.ContentMode.HTML);
-            h2.addComponent(sample);*/
+             "This is an example of a"
+             + "\n<br>"
+             + "\n<img src='"+p.getImagen()+"'>"
+             + "Label</a> \ncomponent.");
+             sample.setContentMode(com.vaadin.shared.ui.label.ContentMode.HTML);
+             h2.addComponent(sample);*/
             Image portada = new Image();
             final ExternalResource externalResource = new ExternalResource(
                     p.getImagen());
@@ -154,13 +143,19 @@ public class Principal extends UI {
         h1.addComponent(button1);
         h2.addComponent(table);
         v1.addComponent(new Label("Filtros:"));
-        v1.addComponent(new Select("Directores", listaDirectores));
-        v1.addComponent(new Select("Actores", listaActores));
+        
+        BeanItemContainer<Director> bdir = new BeanItemContainer(Director.class,listaDirectores);
+        final ComboBox cd = new ComboBox("Directores",bdir);
+        cd.setItemCaptionPropertyId("nombreCompleto");
+        
+        v1.addComponent(cd);
+        v1.addComponent(new ComboBox("Actores", listaActores));
         Button button2 = new Button("Filtrar");
         button2.addClickListener(new Button.ClickListener() {
             @Override
             public void buttonClick(Button.ClickEvent event) {
-
+                h2.removeAllComponents();
+                h2.addComponent(new Label(""+cd.getValue()));                
             }
         });
         v1.addComponent(button2);

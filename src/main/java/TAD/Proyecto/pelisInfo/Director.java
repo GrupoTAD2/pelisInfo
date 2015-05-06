@@ -13,11 +13,13 @@ public class Director {
     private int idDirector;
     private String nombre;
     private String apellidos;
+    private String nombreCompleto;
 
     public Director(int idDirector, String nombre, String apellidos) {
         this.idDirector = idDirector;
         this.nombre = nombre;
         this.apellidos = apellidos;
+        this.nombreCompleto=nombre+" "+apellidos;
     }
 
     public int getIdDirector() {
@@ -46,6 +48,10 @@ public class Director {
 
     @Override
     public String toString() {
-        return nombre + " " + apellidos;
+        return ""+idDirector;
+    }
+    
+    public String getNombreCompleto() {
+        return nombreCompleto;
     }
 }
