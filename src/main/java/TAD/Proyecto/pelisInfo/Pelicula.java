@@ -12,23 +12,25 @@ package TAD.Proyecto.pelisInfo;
 public class Pelicula {
 
     private int idPelicula;
+    private int idDirector;
     private String titulo;
-    private String informacion;
-    private String generos;
-    private String director;
+    private int anio;
+    private String pais;
+    private String genero;
     private String sinopsis;
-    private String protagonistas;
+    private int duracion;
     private String imagen;
     private String trailer;
 
-    public Pelicula(int idPelicula, String titulo, String informacion, String generos, String director, String sinopsis, String protagonistas, String imagen, String trailer) {
+    public Pelicula(int idPelicula, int idDirector, String titulo, int anio, String pais, String genero, String sinopsis, int duracion, String imagen, String trailer) {
         this.idPelicula = idPelicula;
+        this.idDirector = idDirector;
         this.titulo = titulo;
-        this.informacion = informacion;
-        this.generos = generos;
-        this.director = director;
+        this.anio = anio;
+        this.pais = pais;
+        this.genero = genero;
         this.sinopsis = sinopsis;
-        this.protagonistas = protagonistas;
+        this.duracion = duracion;
         this.imagen = imagen;
         this.trailer = trailer;
     }
@@ -41,6 +43,14 @@ public class Pelicula {
         this.idPelicula = idPelicula;
     }
 
+    public int getIdDirector() {
+        return idDirector;
+    }
+
+    public void setIdDirector(int idDirector) {
+        this.idDirector = idDirector;
+    }
+
     public String getTitulo() {
         return titulo;
     }
@@ -49,28 +59,28 @@ public class Pelicula {
         this.titulo = titulo;
     }
 
-    public String getInformacion() {
-        return informacion;
+    public int getAnio() {
+        return anio;
     }
 
-    public void setInformacion(String informacion) {
-        this.informacion = informacion;
+    public void setAnio(int anio) {
+        this.anio = anio;
     }
 
-    public String getGeneros() {
-        return generos;
+    public String getPais() {
+        return pais;
     }
 
-    public void setGeneros(String generos) {
-        this.generos = generos;
+    public void setPais(String pais) {
+        this.pais = pais;
     }
 
-    public String getDirector() {
-        return director;
+    public String getGenero() {
+        return genero;
     }
 
-    public void setDirector(String director) {
-        this.director = director;
+    public void setGenero(String genero) {
+        this.genero = genero;
     }
 
     public String getSinopsis() {
@@ -81,12 +91,12 @@ public class Pelicula {
         this.sinopsis = sinopsis;
     }
 
-    public String getProtagonistas() {
-        return protagonistas;
+    public int getDuracion() {
+        return duracion;
     }
 
-    public void setProtagonistas(String protagonistas) {
-        this.protagonistas = protagonistas;
+    public void setDuracion(int duracion) {
+        this.duracion = duracion;
     }
 
     public String getImagen() {
@@ -107,7 +117,7 @@ public class Pelicula {
 
     @Override
     public String toString() {
-        return "Pelicula{" + "idPelicula=" + idPelicula + ", titulo=" + titulo + ", informacion=" + informacion + ", generos=" + generos + ", director=" + director + ", sinopsis=" + sinopsis + ", protagonistas=" + protagonistas + ", imagen=" + imagen + ", trailer=" + trailer + '}';
+        return "Pelicula{" + "idPelicula=" + idPelicula + ", idDirector=" + idDirector + ", titulo=" + titulo + ", anio=" + anio + ", pais=" + pais + ", genero=" + genero + ", sinopsis=" + sinopsis + ", duracion=" + duracion + ", imagen=" + imagen + ", trailer=" + trailer + '}';
     }
 
 }
