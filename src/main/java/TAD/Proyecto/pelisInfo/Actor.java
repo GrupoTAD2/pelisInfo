@@ -13,11 +13,13 @@ public class Actor {
     private int idActor;
     private String nombre;
     private String apellidos;
+    private String nombreCompleto;
 
     public Actor(int idActor, String nombre, String apellidos) {
         this.idActor = idActor;
         this.nombre = nombre;
         this.apellidos = apellidos;
+        this.nombreCompleto=nombre+" "+apellidos;
     }
 
     public int getIdActor() {
@@ -46,6 +48,10 @@ public class Actor {
 
     @Override
     public String toString() {
-        return nombre + " " + apellidos;
+        return ""+idActor;
+    }
+    
+    public String getNombreCompleto() {
+        return nombreCompleto;
     }
 }
