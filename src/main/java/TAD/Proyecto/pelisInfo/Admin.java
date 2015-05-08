@@ -7,6 +7,7 @@ import com.vaadin.annotations.Title;
 import com.vaadin.annotations.VaadinServletConfiguration;
 import com.vaadin.data.Container;
 import com.vaadin.data.Property;
+import com.vaadin.data.util.BeanItemContainer;
 import com.vaadin.server.ExternalResource;
 import com.vaadin.server.Sizeable;
 import com.vaadin.server.VaadinRequest;
@@ -62,54 +63,28 @@ public class Admin extends UI {
 
         setContent(layout);
 
-        final List<Pelicula> listaPeliculas = new ArrayList();
-        final List<Director> listaDirectores = new ArrayList();
-        final List<Actor> listaActores = new ArrayList();
+        List<Pelicula> listaPeliculas = new ArrayList();
+        List<Director> listaDirectores = new ArrayList();
+        List<Actor> listaActores = new ArrayList();
 
-        String login = "root";
-        String password = "";
-        String url = "jdbc:mysql://localhost:3306/pelisInfo";
+        DAO dao = new DAO();
+        dao.abrirConexion();
 
-        Connection conn = null;
         try {
-            Class.forName("com.mysql.jdbc.Driver").newInstance();
-            conn = DriverManager.getConnection(url, login, password);
-            if (conn != null) {
-                Statement stmt1 = conn.createStatement();
-                ResultSet res1 = stmt1.executeQuery("SELECT * FROM pelicula");
-                while (res1.next()) {
-                    Pelicula p = new Pelicula(Integer.parseInt(res1.getString("idPelicula")), Integer.parseInt(res1.getString("idDirector")), res1.getString("titulo"), Integer.parseInt(res1.getString("anio")), res1.getString("pais"), res1.getString("genero"), res1.getString("sinopsis"), Integer.parseInt(res1.getString("duracion")), res1.getString("imagen"), res1.getString("trailer"));
-                    listaPeliculas.add(p);
-                }
-                Statement stmt2 = conn.createStatement();
-                ResultSet res2 = stmt2.executeQuery("SELECT * FROM director");
-                while (res2.next()) {
-                    Director d = new Director(Integer.parseInt(res2.getString("idDirector")), res2.getString("nombre"), res2.getString("apellidos"));
-                    listaDirectores.add(d);
-                }
-                Statement stmt3 = conn.createStatement();
-                ResultSet res3 = stmt3.executeQuery("SELECT * FROM actor");
-                while (res3.next()) {
-                    Actor a = new Actor(Integer.parseInt(res3.getString("idActor")), res3.getString("nombre"), res3.getString("apellidos"));
-                    listaActores.add(a);
-                }
-                res1.close();
-                stmt1.close();
-                res2.close();
-                stmt2.close();
-                res3.close();
-                stmt3.close();
-                conn.close();
-            }
+            listaPeliculas = dao.consultarPeliculas();
+            listaDirectores = dao.consultarDirectores();
+            listaActores = dao.consultarActores();
         } catch (SQLException ex) {
-            System.out.println(ex);
-        } catch (ClassNotFoundException ex) {
-            System.out.println(ex);
-        } catch (InstantiationException ex) {
-            Logger.getLogger(Admin.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (IllegalAccessException ex) {
-            Logger.getLogger(Admin.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(Principal.class.getName()).log(Level.SEVERE, null, ex);
+        }finally{
+            try {
+                dao.cerrarConexion();
+            } catch (SQLException ex) {
+                Logger.getLogger(Admin.class.getName()).log(Level.SEVERE, null, ex);
+            }
         }
+
+        final BeanItemContainer<Director> bdir = new BeanItemContainer(Director.class, listaDirectores);
 
         Tree tree = new Tree("Administracion");
         String pel = "Peliculas";
@@ -117,7 +92,7 @@ public class Admin extends UI {
         for (int i = 0; i < listaPeliculas.size(); i++) {
             Pelicula p = listaPeliculas.get(i);
             tree.addItem(p);
-            tree.setParent(p.getTitulo(), pel);
+            tree.setParent(p, pel);
             tree.setChildrenAllowed(p, false);
         }
         String act = "Actores";
@@ -142,7 +117,7 @@ public class Admin extends UI {
             public void valueChange(Property.ValueChangeEvent event) {
                 v2.removeAllComponents();
                 Pelicula p = (Pelicula) event.getProperty().getValue();
-                TextField t0 = new TextField("Durecion", Integer.toString(p.getDuracion()));
+                TextField t0 = new TextField("Duracion", Integer.toString(p.getDuracion()));
                 v2.addComponent(t0);
                 TextField t1 = new TextField("Titulo", p.getTitulo());
                 t1.setColumns(25);
@@ -160,8 +135,11 @@ public class Admin extends UI {
                 TextField t6 = new TextField("Trailer", p.getTrailer());
                 t6.setColumns(30);
                 v2.addComponent(t6);
-                ComboBox t7 = new ComboBox("Director", listaDirectores);
+                final ComboBox t7 = new ComboBox("Directores", bdir);
+                t7.setItemCaptionPropertyId("nombreCompleto");
                 v2.addComponent(t7);
+                TextField t8 = new TextField("Director", Integer.toString(p.getIdDirector()));
+                v2.addComponent(t8);
                 Button button = new Button("Editar");
                 button.addClickListener(new Button.ClickListener() {
                     @Override

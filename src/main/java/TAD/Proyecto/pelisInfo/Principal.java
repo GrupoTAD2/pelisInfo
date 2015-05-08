@@ -67,38 +67,24 @@ public class Principal extends UI {
         List<Director> listaDirectores = new ArrayList();
         List<Actor> listaActores = new ArrayList();
 
-        Connection conn = DAO.abrirConexion();
+        DAO dao = new DAO();
+        dao.abrirConexion();
+
+
         try {
-            if (conn != null) {                
-                listaPeliculas = DAO.consultarPeliculas(conn);
-                Statement stmt2 = conn.createStatement();
-                ResultSet res2 = stmt2.executeQuery("SELECT * FROM director");
-                while (res2.next()) {
-                    Director d = new Director(Integer.parseInt(res2.getString("idDirector")), res2.getString("nombre"), res2.getString("apellidos"));
-                    listaDirectores.add(d);
-                }
-                Statement stmt3 = conn.createStatement();
-                ResultSet res3 = stmt3.executeQuery("SELECT * FROM actor");
-                while (res3.next()) {
-                    Actor a = new Actor(Integer.parseInt(res3.getString("idActor")), res3.getString("nombre"), res3.getString("apellidos"));
-                    listaActores.add(a);
-                }
-                
-                res2.close();
-                stmt2.close();
-                res3.close();
-                stmt3.close();                
-            }
+            listaPeliculas = dao.consultarPeliculas();
+            listaDirectores = dao.consultarDirectores();
+            listaActores = dao.consultarActores();
         } catch (SQLException ex) {
-            System.out.println(ex);
+            Logger.getLogger(Principal.class.getName()).log(Level.SEVERE, null, ex);
         }finally{
             try {
-                DAO.cerrarConexion(conn);
+                dao.cerrarConexion();
             } catch (SQLException ex) {
-                Logger.getLogger(Principal.class.getName()).log(Level.SEVERE, null, ex);
+                Logger.getLogger(Admin.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
-
+  
         Table table = new Table();
 
         table.addContainerProperty("Portada", Image.class, null);
@@ -143,11 +129,11 @@ public class Principal extends UI {
         h1.addComponent(button1);
         h2.addComponent(table);
         v1.addComponent(new Label("Filtros:"));
-        
-        BeanItemContainer<Director> bdir = new BeanItemContainer(Director.class,listaDirectores);
-        final ComboBox cd = new ComboBox("Directores",bdir);
+
+        BeanItemContainer<Director> bdir = new BeanItemContainer(Director.class, listaDirectores);
+        final ComboBox cd = new ComboBox("Directores", bdir);
         cd.setItemCaptionPropertyId("nombreCompleto");
-        
+
         v1.addComponent(cd);
         v1.addComponent(new ComboBox("Actores", listaActores));
         Button button2 = new Button("Filtrar");
@@ -155,7 +141,7 @@ public class Principal extends UI {
             @Override
             public void buttonClick(Button.ClickEvent event) {
                 h2.removeAllComponents();
-                h2.addComponent(new Label(""+cd.getValue()));                
+                h2.addComponent(new Label("" + cd.getValue()));
             }
         });
         v1.addComponent(button2);

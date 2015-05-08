@@ -21,16 +21,28 @@ import java.util.logging.Logger;
  */
 public class DAO {
 
-    public static Connection abrirConexion() {
+    private Connection conn;
+
+    public DAO() {
+        this.conn = null;
+    }
+
+    public Connection getConn() {
+        return conn;
+    }
+
+    public void setConn(Connection conn) {
+        this.conn = conn;
+    }
+
+    public void abrirConexion() {
         String login = "root";
         String password = "";
         String url = "jdbc:mysql://localhost:3306/pelisInfo";
 
-        Connection conn = null;
-
         try {
             Class.forName("com.mysql.jdbc.Driver").newInstance();
-            conn = DriverManager.getConnection(url, login, password);
+            this.setConn(DriverManager.getConnection(url, login, password));
         } catch (SQLException ex) {
             System.out.println(ex);
         } catch (ClassNotFoundException ex) {
@@ -40,25 +52,75 @@ public class DAO {
         } catch (IllegalAccessException ex) {
             Logger.getLogger(Principal.class.getName()).log(Level.SEVERE, null, ex);
         }
-
-        return conn;
     }
 
-    public static void cerrarConexion(Connection conn) throws SQLException {
-        conn.close();
+    public void cerrarConexion() throws SQLException {
+        this.getConn().close();
     }
 
-    public static List consultarPeliculas(Connection conn) throws SQLException {
+    public List<Pelicula> consultarPeliculas() throws SQLException {
         List<Pelicula> listaPeliculas = new ArrayList();
-        Statement stmt1 = conn.createStatement();
-        ResultSet res1 = stmt1.executeQuery("SELECT * FROM pelicula");
-        while (res1.next()) {
-            Pelicula p = new Pelicula(Integer.parseInt(res1.getString("idPelicula")), Integer.parseInt(res1.getString("idDirector")), res1.getString("titulo"), Integer.parseInt(res1.getString("anio")), res1.getString("pais"), res1.getString("genero"), res1.getString("sinopsis"), Integer.parseInt(res1.getString("duracion")), res1.getString("imagen"), res1.getString("trailer"));
+        Statement stmt = this.getConn().createStatement();
+        ResultSet res = stmt.executeQuery("SELECT * FROM pelicula");
+        while (res.next()) {
+            Pelicula p = new Pelicula(Integer.parseInt(res.getString("idPelicula")), Integer.parseInt(res.getString("idDirector")), res.getString("titulo"), Integer.parseInt(res.getString("anio")), res.getString("pais"), res.getString("genero"), res.getString("sinopsis"), Integer.parseInt(res.getString("duracion")), res.getString("imagen"), res.getString("trailer"));
             listaPeliculas.add(p);
         }
-        res1.close();
-        stmt1.close();
+        res.close();
+        stmt.close();
         return listaPeliculas;
     }
 
+    public List<Director> consultarDirectores() throws SQLException {
+        final List<Director> listaDirectores = new ArrayList();
+        Statement stmt = this.getConn().createStatement();
+        ResultSet res = stmt.executeQuery("SELECT * FROM director");
+        while (res.next()) {
+            Director d = new Director(Integer.parseInt(res.getString("idDirector")), res.getString("nombre"), res.getString("apellidos"));
+            listaDirectores.add(d);
+        }
+        res.close();
+        stmt.close();
+        return listaDirectores;
+    }
+
+    public List<Actor> consultarActores() throws SQLException {
+        List<Actor> listaActores = new ArrayList();
+        Statement stmt = this.getConn().createStatement();
+        ResultSet res = stmt.executeQuery("SELECT * FROM actor");
+        while (res.next()) {
+            Actor a = new Actor(Integer.parseInt(res.getString("idActor")), res.getString("nombre"), res.getString("apellidos"));
+            listaActores.add(a);
+        }
+        res.close();
+        stmt.close();
+        return listaActores;
+    }
+
+    public Director devolverDirector(Integer idDirector) throws SQLException {
+        Director d = null;
+        Statement stmt = this.getConn().createStatement();
+        ResultSet res = stmt.executeQuery("SELECT * FROM director WHERE idDirector='" + idDirector + "'");
+        while (res.next()) {
+            d = new Director(Integer.parseInt(res.getString("idDirector")),
+                    res.getString("nombre"),
+                    res.getString("apellidos"));
+        }
+        res.close();
+        stmt.close();
+        return d;
+    }
+
+    public List<Actor> devolverActores(Integer idPelicula) throws SQLException {
+        List<Actor> listaActores = new ArrayList();
+        Statement stmt = this.getConn().createStatement();
+        ResultSet res = stmt.executeQuery("SELECT * FROM actorpelicula ap INNER JOIN actor a WHERE ap.idPelicula='" + idPelicula + "' and a.idActor='ap.idActor'");
+        while (res.next()) {            
+            Actor a = new Actor(Integer.parseInt(res.getString("idActor")), res.getString("nombre"), res.getString("apellidos"));
+            listaActores.add(a);
+        }
+        res.close();
+        stmt.close();
+        return listaActores;
+    }
 }
